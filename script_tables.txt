@@ -1,0 +1,115 @@
+CREATE TABLE Secretariat(
+idSecretariat INT NOT NULL AUTO_INCREMENT,
+PRIMARY KEY(idSecretariat)
+);
+CREATE TABLE Contrainte(
+idContrainte INT NOT NULL AUTO_INCREMENT,
+dateContrainte DATE,
+heureDebutContrainte TIME,
+heureFinContrainte TIME,
+idSecretariat INT,
+PRIMARY KEY(idContrainte),
+FOREIGN KEY(idSecretariat) REFERENCES Secretariat(idSecretariat)
+);
+CREATE TABLE Enseignant(
+idEnseignant INT NOT NULL AUTO_INCREMENT,
+prenom VARCHAR(50),
+nom VARCHAR(50),
+nbHeure DECIMAL(15,2),
+PRIMARY KEY(idEnseignant)
+);
+CREATE TABLE Login(
+identifiant VARCHAR(50) NOT NULL,
+mdp VARCHAR(50) NOT NULL,
+role VARCHAR(5),
+PRIMARY KEY(identifiant, mdp)
+);
+CREATE TABLE Salle(
+idSalle INT NOT NULL AUTO_INCREMENT,
+capacite INT,
+dispo LOGICAL,
+typeSalle VARCHAR(5),
+PRIMARY KEY(idSalle)
+);
+CREATE TABLE Matiere(
+idMatiere INT NOT NULL AUTO_INCREMENT,
+nom VARCHAR(50),
+PRIMARY KEY(idMatiere)
+);
+10
+CREATE TABLE Suit(
+idSuit INT NOT NULL AUTO_INCREMENT,
+nomGroupe VARCHAR(5),
+taille INT,
+typeGroupe VARCHAR(5),
+PRIMARY KEY(idSuit)
+);
+CREATE TABLE Promo(
+idPromo INT NOT NULL AUTO_INCREMENT,
+nom VARCHAR(5),
+taille INT,
+idSuit INT NOT NULL,
+PRIMARY KEY(idPromo),
+UNIQUE(idSuit),
+FOREIGN KEY(idSuit) REFERENCES SuitCours(idSuit)
+);
+CREATE TABLE Groupe(
+idGroupe INT NOT NULL AUTO_INCREMENT,
+nom VARCHAR(5),
+taille INT,
+idPromo INT NOT NULL,
+idSuit INT NOT NULL,
+PRIMARY KEY(idGroupe),
+UNIQUE(idSuit),
+FOREIGN KEY(idPromo) REFERENCES Promo(idPromo),
+FOREIGN KEY(idSuit) REFERENCES SuitCours(idSuit)
+);
+CREATE TABLE DemiGroupe(
+idDemiGroupe INT NOT NULL AUTO_INCREMENT,
+nomGroupe VARCHAR(5),
+Taille INT,
+idGroupe INT NOT NULL,
+idSuit INT NOT NULL,
+PRIMARY KEY(idDemiGroupe),
+UNIQUE(idSuit),
+FOREIGN KEY(idGroupe) REFERENCES Groupe(idGroupe),
+FOREIGN KEY(idSuit) REFERENCES SuitCours(idSuit)
+);
+CREATE TABLE Etudiant(
+idEtudiant INT NOT NULL AUTO_INCREMENT,
+nom VARCHAR(50),
+prenom VARCHAR(50),
+parcours VARCHAR(5),
+idDemiGroupe INT NOT NULL,
+11
+PRIMARY KEY(idEtudiant),
+FOREIGN KEY(idDemiGroupe) REFERENCES DemiGroupe(idDemiGroupe)
+);
+CREATE TABLE Impose(
+idContrainte INT,
+idEnseignant INT,
+PRIMARY KEY(idContrainte, idEnseignant),
+FOREIGN KEY(idContrainte) REFERENCES Contrainte(idContrainte),
+FOREIGN KEY(idEnseignant) REFERENCES Enseignant(idEnseignant)
+);
+CREATE TABLE Enseigne(
+idEnseignant INT,
+idMatiere INT,
+PRIMARY KEY(idEnseignant, idMatiere),
+FOREIGN KEY(idEnseignant) REFERENCES Enseignant(idEnseignant),
+FOREIGN KEY(idMatiere) REFERENCES Matiere(idMatiere)
+);
+CREATE TABLE Cours(
+idEnseignant INT,
+idSalle INT,
+idMatiere INT,
+idSuit INT,
+duree TIME,
+journee DATE,
+horaire TIME,
+PRIMARY KEY(idEnseignant, idSalle, idMatiere, idSuit),
+FOREIGN KEY(idEnseignant) REFERENCES Enseignant(idEnseignant),
+FOREIGN KEY(idSalle) REFERENCES Salle(idSalle),
+FOREIGN KEY(idMatiere) REFERENCES Matiere(idMatiere),
+FOREIGN KEY(idSuit) REFERENCES SuitCours(idSuit)
+);
