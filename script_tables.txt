@@ -113,3 +113,17 @@ FOREIGN KEY(idSalle) REFERENCES Salle(idSalle),
 FOREIGN KEY(idMatiere) REFERENCES Matiere(idMatiere),
 FOREIGN KEY(idSuit) REFERENCES SuitCours(idSuit)
 );
+insert into Enseignant (prenom, nom, nbHeure) VALUES ("Christophe", "Loge", 0);
+insert into Enseignant (prenom, nom, nbHeure) VALUES ("David", "Durand", 0);
+insert into Enseignant (prenom, nom, nbHeure) VALUES ("Pascal", "Bourde", 0);
+
+insert into Salle (capacite, dispo, typeSalle) VALUES (200, true,  AMPHI);
+insert into Salle (capacite, dispo, typeSalle) VALUES (28, true,  TD);
+
+insert into Matiere (nom) VALUES ("Qualite dev");
+insert into Matiere (nom) VALUES ("Dev web");
+insert into Matiere (nom) VALUES ("Droit");
+
+insert into SuitCours (nomGroupe, taille, typeGroupe) VALUES ("INFO2", 160, "PROMO");
+insert into SuitCours (nomGroupe, taille, typeGroupe) VALUES ("TD5", 11, "TD");
+insert into SuitCours (nomGroupe, taille, typeGroupe) VALUES ("TP9", 11 "TP");
