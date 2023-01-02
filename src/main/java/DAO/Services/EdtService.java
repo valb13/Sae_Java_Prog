@@ -23,7 +23,57 @@ public class EdtService implements EdtDAO {
     private String psswd = "basededonneemdp";
 
 
+    @Override
+    public void Migration() {
 
+        //on récupere le script sur un fichier text externe
+        String line = "";
+        String stm = "";
+        BufferedReader bufferedReader = null;
+
+        //on charge le driver
+        try {
+            Class.forName(nomDriverJDBCDuSGBD);
+            System.out.println("chargement du driver jdbc avec succés !");
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+            System.exit(-1);
+        }
+
+        //on ouvre une connexion à notre base de donnée
+        try (java.sql.Connection con = DriverManager.getConnection(urlBD, user, psswd)) {
+
+            System.out.println("connexion ouverte");
+            File file = new File("script_tables.txt");
+            try {
+                //On lit le fichier pour récupérer le script
+                FileReader filereader = new FileReader(file);
+                bufferedReader = new BufferedReader(filereader);
+
+                while((line = bufferedReader.readLine()) != null ){
+                    var value = line.split(";");
+                    stm = value[0];
+                    //on lance la migration initial pour créer nos tables en récupérant le script
+                    PreparedStatement pst = con.prepareStatement(stm);
+                    System.out.println(stm);
+                }
+
+            } catch (FileNotFoundException e) {
+                System.out.println("fichier introuvable");
+            }catch (IOException e){
+                System.out.println("fichier non lus");
+            }
+
+            System.out.println("migration réussie");
+
+            con.close();
+
+        }catch(SQLException e){
+
+            System.out.println(e);
+            System.exit(-1);
+        }
+    }
 
     public List<Cours> GetEmploiDuTemps(Date date, int idGroupe){
 
@@ -69,6 +119,8 @@ public class EdtService implements EdtDAO {
                 emploiDuTemps.add(cours);
             }
 
+            con.close();
+
         }catch(SQLException e){
 
             System.out.println(e);
@@ -77,55 +129,6 @@ public class EdtService implements EdtDAO {
         return emploiDuTemps;
     }
 
-    @Override
-    public void Migration() {
-
-        //on récupere le script sur un fichier text externe
-        String line = "";
-        String stm = "";
-        BufferedReader bufferedReader = null;
-
-        //on charge le driver
-        try {
-            Class.forName(nomDriverJDBCDuSGBD);
-            System.out.println("chargement du driver jdbc avec succés !");
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-            System.exit(-1);
-        }
-
-        //on ouvre une connexion à notre base de donnée
-        try (java.sql.Connection con = DriverManager.getConnection(urlBD, user, psswd)) {
-
-            System.out.println("connexion ouverte");
-            File file = new File("script_tables.txt");
-            try {
-                //On lit le fichier pour récupérer le script
-                FileReader filereader = new FileReader(file);
-                bufferedReader = new BufferedReader(filereader);
-
-                while((line = bufferedReader.readLine()) != null ){
-                    var value = line.split(";");
-                    stm = value[0];
-                    //on lance la migration initial pour créer nos tables en récupérant le script
-                    PreparedStatement pst = con.prepareStatement(stm);
-                    System.out.println(stm);
-                }
-
-            } catch (FileNotFoundException e) {
-                System.out.println("fichier introuvable");
-            }catch (IOException e){
-                System.out.println("fichier non lus");
-            }
-
-            System.out.println("migration réussie");
-
-        }catch(SQLException e){
-
-            System.out.println(e);
-            System.exit(-1);
-        }
-    }
 
     @Override
     public Enseignant GetEnseignant(int id) {
@@ -159,6 +162,8 @@ public class EdtService implements EdtDAO {
                 enseignant.setNbHeures(resultSet.getDouble("nbHeure"));
             }
 
+            con.close();
+
         }catch(SQLException e){
 
             System.out.println(e);
@@ -173,7 +178,7 @@ public class EdtService implements EdtDAO {
 
         Salle salle = new Salle();
 
-        String stm = "";
+        String stm = "select * from Salle";
 
         //on charge le driver
         try {
@@ -190,7 +195,17 @@ public class EdtService implements EdtDAO {
 
             //on lance la migration initial pour créer nos tables
             PreparedStatement pst = con.prepareStatement(stm);
-            System.out.println("migration réussie");
+            ResultSet resultSet = pst.executeQuery();
+            System.out.println("opération réussie");
+
+            while(resultSet != null){
+                salle.setIdSalle(resultSet.getInt("idSalle"));
+                salle.setTypeSalle(resultSet.getString("typeSalle"));
+                salle.setCapacite(resultSet.getInt("capacite"));
+                salle.setDisponibilité(resultSet.getBoolean("dispo"));
+            }
+
+            con.close();
 
         }catch(SQLException e){
 
@@ -204,8 +219,7 @@ public class EdtService implements EdtDAO {
     public Groupe GetGroupe(int id) {
 
         Groupe groupe = new Groupe();
-        String stm = "";
-
+        String stm = "select * from SuitCours";
 
         //on charge le driver
         try {
@@ -222,7 +236,17 @@ public class EdtService implements EdtDAO {
 
             //on lance la migration initial pour créer nos tables
             PreparedStatement pst = con.prepareStatement(stm);
+            ResultSet resultSet = pst.executeQuery();
             System.out.println("migration réussie");
+
+            while(resultSet != null){
+                groupe.setIdGroup(resultSet.getInt("idSuit"));
+                groupe.setName(resultSet.getString("nomGroupe"));
+                groupe.setTaille(resultSet.getInt("taille"));
+                groupe.setTypeGroupe(resultSet.getString("typeGroupe"));
+            }
+
+            con.close();
 
         }catch(SQLException e){
 
@@ -274,6 +298,8 @@ public class EdtService implements EdtDAO {
                 cours.setIdMatiere(resultSet.getInt("idMatiere"));
             }
 
+            con.close();
+
         }catch(SQLException e){
 
             System.out.println(e);
@@ -284,13 +310,47 @@ public class EdtService implements EdtDAO {
 
     @Override
     public Matiere GetMatiere(int id) {
-        return null;
+
+        Matiere matiere = new Matiere();
+        String stm = "select * from Matiere";
+
+        try {
+            Class.forName(nomDriverJDBCDuSGBD);
+            System.out.println("chargement du driver jdbc avec succés !");
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+            System.exit(-1);
+        }
+
+        try (java.sql.Connection con = DriverManager.getConnection(urlBD, user, psswd)) {
+
+            System.out.println("connexion ouverte");
+
+            //on lance la migration initial pour créer nos tables
+            PreparedStatement pst = con.prepareStatement(stm);
+            ResultSet resultSet = pst.executeQuery();
+            System.out.println("migration réussie");
+
+            while(resultSet != null){
+                matiere.setIdMatiere(resultSet.getInt("idMatiere"));
+                matiere.setName(resultSet.getString("nom"));
+            }
+
+            con.close();
+
+        }catch(SQLException e){
+
+            System.out.println(e);
+            System.exit(-1);
+        }
+
+        return matiere;
     }
 
 
     @Override
     public void AddCours(Cours cours) {
-        String stm = "";
+        String stm = "insert ";
 
         //on charge le driver
         try {
@@ -307,8 +367,17 @@ public class EdtService implements EdtDAO {
 
             //on lance la migration initial pour créer nos tables
             PreparedStatement pst = con.prepareStatement(stm);
-            System.out.println("migration réussie");
+            pst.setInt(1, cours.getIdCours());
+            pst.setDate(2, (java.sql.Date) cours.getDate());
+            pst.setInt(3, cours.getDebutCours() );
+            pst.setDouble(4, cours.getDuree());
+            pst.setInt(5, cours.getIdEnseigant());
+            pst.setInt(6, cours.getIdGoupe());
+            pst.setInt(7, cours.getIdMatiere());
+            pst.executeUpdate();
 
+            System.out.println("migration réussie");
+            con.close();
         }catch(SQLException e){
 
             System.out.println(e);
