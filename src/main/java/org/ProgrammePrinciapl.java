@@ -1,6 +1,6 @@
-package BDD.IntroductionJDBC;
+package org;
 
-import Services.EdtService;
+import DAO.Services.EdtService;
 
 //On ne passera à l'étape n+1 que si l'étape n aboutie
 //si non on abandonne le programme
