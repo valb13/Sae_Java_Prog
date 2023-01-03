@@ -27,8 +27,8 @@ public class EdtService implements EdtDAO {
     public void Migration() {
 
         //on récupere le script sur un fichier text externe
-        String line = "";
-        String stm = "";
+        String line = null;
+        String stm = null;
         BufferedReader bufferedReader = null;
 
         //on charge le driver
@@ -51,12 +51,15 @@ public class EdtService implements EdtDAO {
                 bufferedReader = new BufferedReader(filereader);
 
                 while((line = bufferedReader.readLine()) != null ){
-                    var value = line.split(";");
-                    stm = value[0];
+                 /*   var value = line.split(";");
+                    stm = value[0];*/
                     //on lance la migration initial pour créer nos tables en récupérant le script
-                    PreparedStatement pst = con.prepareStatement(stm);
-                    System.out.println(stm);
+                    PreparedStatement pst = con.prepareStatement(line);
+                    pst.executeUpdate();
+                    System.out.println(line);
                 }
+
+
 
             } catch (FileNotFoundException e) {
                 System.out.println("fichier introuvable");
@@ -85,7 +88,7 @@ public class EdtService implements EdtDAO {
         List<Cours> emploiDuTemps = new ArrayList<>();
         Cours cours = new Cours();
 
-        String stm = "select * from cours where idGroupe = " + idGroupe + " and journee = " + date + " Order by horaire;";
+        String stm = "select * from cours where idGroupe = " + idGroupe + " and journee = " + date + " Order by horaire";
 
         //on charge le driver
         try {
@@ -265,7 +268,7 @@ public class EdtService implements EdtDAO {
         Salle salle = new Salle();
         Groupe groupe = new Groupe();
 
-        String stm = "select duree, journee, horaire from cours where idGroupe = " + idGroupe + " and journee = " + date + " and horaire = " + debutCours +";";
+        String stm = "select duree, journee, horaire from cours where idGroupe = " + idGroupe + " and journee = " + date + " and horaire = " + debutCours;
 
         //on charge le driver
         try {
@@ -350,7 +353,7 @@ public class EdtService implements EdtDAO {
 
     @Override
     public void AddCours(Cours cours) {
-        String stm = "insert ";
+        String stm = "insert into Cours (journee, horaire, duree, idEnseignant, idSuit, idMatiere, idSalle) values (?, ?, ?, ?, ?, ?, ?) ";
 
         //on charge le driver
         try {
@@ -367,13 +370,13 @@ public class EdtService implements EdtDAO {
 
             //on lance la migration initial pour créer nos tables
             PreparedStatement pst = con.prepareStatement(stm);
-            pst.setInt(1, cours.getIdCours());
-            pst.setDate(2, (java.sql.Date) cours.getDate());
-            pst.setInt(3, cours.getDebutCours() );
-            pst.setDouble(4, cours.getDuree());
-            pst.setInt(5, cours.getIdEnseigant());
-            pst.setInt(6, cours.getIdGoupe());
-            pst.setInt(7, cours.getIdMatiere());
+            pst.setDate(1, (java.sql.Date) cours.getDate());
+            pst.setInt(2, cours.getDebutCours() );
+            pst.setDouble(3, cours.getDuree());
+            pst.setInt(4, cours.getIdEnseigant());
+            pst.setInt(5, cours.getIdGoupe());
+            pst.setInt(6, cours.getIdMatiere());
+            pst.setInt(7,cours.getIdSalle());
             pst.executeUpdate();
 
             System.out.println("migration réussie");
