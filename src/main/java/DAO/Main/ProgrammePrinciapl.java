@@ -25,6 +25,7 @@ public class ProgrammePrinciapl {
         Cours cours = new Cours(date, 1 ,2.5, horaire,1,1,1,1);
         service.AddCours(cours);
         cours.toString();*/
+
         EdtService service = new EdtService();
         Enseignant enseignant = new Enseignant();
         enseignant = service.GetEnseignant(1);

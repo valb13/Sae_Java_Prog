@@ -15,13 +15,7 @@ import java.util.List;
 public class EdtService implements EdtDAO {
 
     //on renseigne le driver
-    private String nomDriverJDBCDuSGBD = "com.mysql.cj.jdbc.Driver";
-
-    //on renseigne les paramètres pour se connecter à la base de données
-    private String urlBD = "jdbc:mysql://localhost:3306/STUDENTS";
-    private String user = "root";
-    private String psswd = "basededonneemdp";
-
+    Connexion con = new Connexion();
 
     @Override
     public void Migration() {
@@ -32,18 +26,12 @@ public class EdtService implements EdtDAO {
         BufferedReader bufferedReader = null;
 
         //on charge le driver
-        try {
-            Class.forName(nomDriverJDBCDuSGBD);
-            System.out.println("chargement du driver jdbc avec succés !");
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-            System.exit(-1);
-        }
+
 
         //on ouvre une connexion à notre base de donnée
-        try (java.sql.Connection con = DriverManager.getConnection(urlBD, user, psswd)) {
+        try {
 
-            System.out.println("connexion ouverte");
+
             File file = new File("script_tables.txt");
             try {
                 //On lit le fichier pour récupérer le script
@@ -54,7 +42,7 @@ public class EdtService implements EdtDAO {
                  /*   var value = line.split(";");
                     stm = value[0];*/
                     //on lance la migration initial pour créer nos tables en récupérant le script
-                    PreparedStatement pst = con.prepareStatement(line);
+                    PreparedStatement pst = con.getConnection().prepareStatement(line);
                     pst.executeUpdate();
                     System.out.println(line);
                 }
@@ -68,8 +56,6 @@ public class EdtService implements EdtDAO {
             }
 
             System.out.println("migration réussie");
-
-            con.close();
 
         }catch(SQLException e){
 
@@ -91,20 +77,11 @@ public class EdtService implements EdtDAO {
         String stm = "select * from cours where idGroupe = " + idGroupe + " and journee = " + date + " Order by horaire";
 
         //on charge le driver
+
         try {
-            Class.forName(nomDriverJDBCDuSGBD);
-            System.out.println("chargement du driver jdbc avec succés !");
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-            System.exit(-1);
-        }
-
-        try (java.sql.Connection con = DriverManager.getConnection(urlBD, user, psswd)) {
-
-            System.out.println("connexion ouverte");
 
             //on lance la migration initial pour créer nos tables
-            PreparedStatement pst = con.prepareStatement(stm);
+            PreparedStatement pst = con.getConnection().prepareStatement(stm);
             ResultSet resultSet = pst.executeQuery();
             System.out.println("migration réussie");
 
@@ -122,8 +99,6 @@ public class EdtService implements EdtDAO {
                 emploiDuTemps.add(cours);
             }
 
-            con.close();
-
         }catch(SQLException e){
 
             System.out.println(e);
@@ -140,21 +115,9 @@ public class EdtService implements EdtDAO {
 
         String stm = "Select * from Enseignant where idEnseignant = " + id ;
 
-        //on charge le driver
         try {
-            Class.forName(nomDriverJDBCDuSGBD);
-            System.out.println("chargement du driver jdbc avec succés !");
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-            System.exit(-1);
-        }
 
-        try (java.sql.Connection con = DriverManager.getConnection(urlBD, user, psswd)) {
-
-            System.out.println("connexion ouverte");
-
-            //on lance la migration initial pour créer nos tables
-            PreparedStatement pst = con.prepareStatement(stm);
+            PreparedStatement pst = Connexion.getInstance().getConnection().prepareStatement(stm);
             ResultSet resultSet = pst.executeQuery();
             if(resultSet.next()){
                 enseignant.setIdEnseignant(resultSet.getInt("idEnseignant"));
@@ -165,13 +128,6 @@ public class EdtService implements EdtDAO {
             } else {
                 System.out.println("raté");
             }
-
-
-           // while(resultSet != null){
-
-           // }
-
-            con.close();
 
         }catch(SQLException e){
 
@@ -189,32 +145,21 @@ public class EdtService implements EdtDAO {
 
         String stm = "select * from Salle";
 
-        //on charge le driver
+
         try {
-            Class.forName(nomDriverJDBCDuSGBD);
-            System.out.println("chargement du driver jdbc avec succés !");
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-            System.exit(-1);
-        }
-
-        try (java.sql.Connection con = DriverManager.getConnection(urlBD, user, psswd)) {
-
             System.out.println("connexion ouverte");
 
             //on lance la migration initial pour créer nos tables
-            PreparedStatement pst = con.prepareStatement(stm);
+            PreparedStatement pst = con.getConnection().prepareStatement(stm);
             ResultSet resultSet = pst.executeQuery();
             System.out.println("opération réussie");
 
-            while(resultSet != null){
+            while(resultSet != null) {
                 salle.setIdSalle(resultSet.getInt("idSalle"));
                 salle.setTypeSalle(resultSet.getString("typeSalle"));
                 salle.setCapacite(resultSet.getInt("capacite"));
                 salle.setDisponibilité(resultSet.getBoolean("dispo"));
             }
-
-            con.close();
 
         }catch(SQLException e){
 
@@ -230,21 +175,13 @@ public class EdtService implements EdtDAO {
         Groupe groupe = new Groupe();
         String stm = "select * from SuitCours";
 
-        //on charge le driver
-        try {
-            Class.forName(nomDriverJDBCDuSGBD);
-            System.out.println("chargement du driver jdbc avec succés !");
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-            System.exit(-1);
-        }
 
-        try (java.sql.Connection con = DriverManager.getConnection(urlBD, user, psswd)) {
+        try {
 
             System.out.println("connexion ouverte");
 
             //on lance la migration initial pour créer nos tables
-            PreparedStatement pst = con.prepareStatement(stm);
+            PreparedStatement pst = con.getConnection().prepareStatement(stm);
             ResultSet resultSet = pst.executeQuery();
             System.out.println("migration réussie");
 
@@ -254,8 +191,6 @@ public class EdtService implements EdtDAO {
                 groupe.setTaille(resultSet.getInt("taille"));
                 groupe.setTypeGroupe(resultSet.getString("typeGroupe"));
             }
-
-            con.close();
 
         }catch(SQLException e){
 
@@ -276,21 +211,13 @@ public class EdtService implements EdtDAO {
 
         String stm = "select duree, journee, horaire from cours where idGroupe = " + idGroupe + " and journee = " + date + " and horaire = " + debutCours;
 
-        //on charge le driver
-        try {
-            Class.forName(nomDriverJDBCDuSGBD);
-            System.out.println("chargement du driver jdbc avec succés !");
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-            System.exit(-1);
-        }
 
-        try (java.sql.Connection con = DriverManager.getConnection(urlBD, user, psswd)) {
+        try {
 
             System.out.println("connexion ouverte");
 
             //on lance la migration initial pour créer nos tables
-            PreparedStatement pst = con.prepareStatement(stm);
+            PreparedStatement pst = con.getConnection().prepareStatement(stm);
             ResultSet resultSet = pst.executeQuery();
             System.out.println("migration réussie");
 
@@ -307,8 +234,6 @@ public class EdtService implements EdtDAO {
                 cours.setIdMatiere(resultSet.getInt("idMatiere"));
             }
 
-            con.close();
-
         }catch(SQLException e){
 
             System.out.println(e);
@@ -324,19 +249,9 @@ public class EdtService implements EdtDAO {
         String stm = "select * from Matiere";
 
         try {
-            Class.forName(nomDriverJDBCDuSGBD);
-            System.out.println("chargement du driver jdbc avec succés !");
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-            System.exit(-1);
-        }
-
-        try (java.sql.Connection con = DriverManager.getConnection(urlBD, user, psswd)) {
-
-            System.out.println("connexion ouverte");
 
             //on lance la migration initial pour créer nos tables
-            PreparedStatement pst = con.prepareStatement(stm);
+            PreparedStatement pst = con.getConnection().prepareStatement(stm);
             ResultSet resultSet = pst.executeQuery();
             System.out.println("migration réussie");
 
@@ -344,8 +259,6 @@ public class EdtService implements EdtDAO {
                 matiere.setIdMatiere(resultSet.getInt("idMatiere"));
                 matiere.setName(resultSet.getString("nom"));
             }
-
-            con.close();
 
         }catch(SQLException e){
 
@@ -361,21 +274,12 @@ public class EdtService implements EdtDAO {
     public void AddCours(Cours cours) {
         String stm = "insert into Cours (journee, horaire, duree, idEnseignant, idSuit, idMatiere, idSalle) values (?, ?, ?, ?, ?, ?, ?) ";
 
-        //on charge le driver
+
         try {
-            Class.forName(nomDriverJDBCDuSGBD);
-            System.out.println("chargement du driver jdbc avec succés !");
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-            System.exit(-1);
-        }
 
-        try (java.sql.Connection con = DriverManager.getConnection(urlBD, user, psswd)) {
-
-            System.out.println("connexion ouverte");
 
             //on lance la migration initial pour créer nos tables
-            PreparedStatement pst = con.prepareStatement(stm);
+            PreparedStatement pst = con.getConnection().prepareStatement(stm);
             pst.setDate(1, (java.sql.Date) cours.getDate());
             pst.setInt(2, cours.getDebutCours() );
             pst.setDouble(3, cours.getDuree());
@@ -386,7 +290,7 @@ public class EdtService implements EdtDAO {
             pst.executeUpdate();
 
             System.out.println("migration réussie");
-            con.close();
+
         }catch(SQLException e){
 
             System.out.println(e);
