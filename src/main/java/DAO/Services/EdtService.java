@@ -18,7 +18,7 @@ public class EdtService implements EdtDAO {
     private String nomDriverJDBCDuSGBD = "com.mysql.cj.jdbc.Driver";
 
     //on renseigne les paramètres pour se connecter à la base de données
-    private String urlBD = "jdbc:mysql://localhost:3306/Test_java_jdbc";
+    private String urlBD = "jdbc:mysql://localhost:3306/STUDENTS";
     private String user = "root";
     private String psswd = "basededonneemdp";
 
@@ -138,7 +138,7 @@ public class EdtService implements EdtDAO {
 
         Enseignant enseignant =  new Enseignant();
 
-        String stm = " Select * from Enseignant";
+        String stm = "Select * from Enseignant where idEnseignant = " + id ;
 
         //on charge le driver
         try {
@@ -156,14 +156,20 @@ public class EdtService implements EdtDAO {
             //on lance la migration initial pour créer nos tables
             PreparedStatement pst = con.prepareStatement(stm);
             ResultSet resultSet = pst.executeQuery();
-            System.out.println("opération réussie");
-
-            while(resultSet != null){
-                enseignant.setIdEnseignant(resultSet.getInt("idEnseignant "));
+            if(resultSet.next()){
+                enseignant.setIdEnseignant(resultSet.getInt("idEnseignant"));
                 enseignant.setName(resultSet.getString("nom"));
                 enseignant.setPrenom(resultSet.getString("prenom"));
                 enseignant.setNbHeures(resultSet.getDouble("nbHeure"));
+                System.out.println("opération réussie");
+            } else {
+                System.out.println("raté");
             }
+
+
+           // while(resultSet != null){
+
+           // }
 
             con.close();
 
